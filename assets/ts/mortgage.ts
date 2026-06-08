@@ -53,6 +53,8 @@ function getInputs(): Inputs {
     alreadyClosed: utils.getInputElt('already-closed-input'),
     paymentsAlreadyMade: utils.getInputElt('payments-already-made-input'),
     closingDate: utils.getInputElt('closing-date-input'),
+    pastPrepaymentMonthly: utils.getInputElt('past-prepayment-monthly-input'),
+    pastPrepaymentTotal: utils.getInputElt('past-prepayment-total-input'),
     nowDate: utils.getInputElt('now-input'),
     prepayment: utils.getInputElt('prepayment-input'),
     stocksReturnRate: utils.getInputElt('stocks-return-rate-input'),
@@ -73,6 +75,7 @@ function getHints(): Record<HintType, HTMLElement> {
     mortgageTerm: utils.getHtmlEltWithId('mortgage-term-hint'),
     downPayment: utils.getHtmlEltWithId('down-payment-hint'),
     paymentsAlreadyMade: utils.getHtmlEltWithId('payments-already-made-hint'),
+    pastPrepayment: utils.getHtmlEltWithId('past-prepayment-hint'),
     stocksReturnRate: utils.getHtmlEltWithId('stocks-return-rate-hint'),
   };
 }
@@ -133,6 +136,8 @@ function getUrlParamMap(inputs: Inputs): InputParamMap {
     [inputs.alreadyClosed, {name: 'closed'}],
     [inputs.paymentsAlreadyMade, {name: 'paid'}],
     [inputs.closingDate, {name: 'closing-date'}],
+    [inputs.pastPrepaymentMonthly, {name: 'past_prepay'}],
+    [inputs.pastPrepaymentTotal, {name: 'past_prepay_total'}],
     [inputs.nowDate, {name: 'now'}],
     [inputs.prepayment, {name: 'prepay'}],
     [inputs.stocksReturnRate, {name: 'stock_rate'}],
@@ -178,6 +183,8 @@ function contextFromInputs(inputs: Inputs): Context {
     paymentsAlreadyMade: utils.orZeroN(inputs.paymentsAlreadyMade),
     closingDate: inputs.closingDate.value ? new Date(inputs.closingDate.value) :
                                             undefined,
+    pastPrepaymentMonthly: utils.orUndef(inputs.pastPrepaymentMonthly),
+    pastPrepaymentTotal: utils.orUndef(inputs.pastPrepaymentTotal),
     prepayment: utils.orZero(inputs.prepayment),
     stocksReturnRate: utils.orUndef(inputs.stocksReturnRate),
     // Note: valueAsDate interprets the input element in UTC timezone, which is

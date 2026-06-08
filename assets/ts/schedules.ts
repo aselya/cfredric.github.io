@@ -17,8 +17,13 @@ function pointwiseFromContext(ctx: Context): readonly PaymentRecordWithMonth[] {
     const pmiPayment = equityOwned.lt(ctx.pmiEquityPct.mul(ctx.price)) ?
         ctx.pmi :
         Num.literal(0);
-    const principalPaidThisMonth = ctx.monthlyLoanPayment.sub(interestPayment)
-                                       .clamp(0, principalRemaining);
+    const monthlyPrepayment = month < ctx.paymentsAlreadyMade ?
+        ctx.pastPrepayment :
+        ctx.prepayment;
+    const principalPaidThisMonth =
+        ctx.m.add(monthlyPrepayment)
+            .sub(interestPayment)
+            .clamp(0, principalRemaining);
     const propertyTaxThisMonth =
         month % 3 == ctx.taxCollectionStartMonthOffset ?
         ctx.propertyTaxAnnual.div(4) :

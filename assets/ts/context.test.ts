@@ -508,3 +508,27 @@ test('simplifyDerivations', () => {
   input.simplifyDerivations = false;
   expect(new Context(input).simplifyDerivations).toEqual(false);
 });
+
+test('pastPrepayment', () => {
+  const input = defaultInput();
+  input.price = new Decimal(10000);
+  input.interestRate = new Decimal(3);
+  input.prepayment = new Decimal(100);
+
+  // Default to prepayment
+  expect(new Context(input).pastPrepayment.toNumber()).toEqual(100);
+
+  // Use pastPrepaymentMonthly
+  input.pastPrepaymentMonthly = new Decimal(200);
+  expect(new Context(input).pastPrepayment.toNumber()).toEqual(200);
+
+  // Use pastPrepaymentTotal (with paymentsAlreadyMade)
+  input.pastPrepaymentMonthly = new Decimal(0);
+  input.pastPrepaymentTotal = new Decimal(600);
+  input.paymentsAlreadyMade = 3;
+  expect(new Context(input).pastPrepayment.toNumber()).toEqual(200);
+
+  // Fallback to prepayment if paymentsAlreadyMade is 0 and only total is provided
+  input.paymentsAlreadyMade = 0;
+  expect(new Context(input).pastPrepayment.toNumber()).toEqual(100);
+});

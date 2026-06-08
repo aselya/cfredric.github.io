@@ -648,6 +648,8 @@ export function computeAmountHints(
             .map((v) => `(${v}/quarter)`),
     mortgageTerm: `(${ctx.mortgageTerm.toNumber()} yrs)`,
     paymentsAlreadyMade: `(${ctx.paymentsAlreadyMade} payments)`,
+    pastPrepayment:
+        fmt.formatCurrencyWithDerivation(ctx.pastPrepayment).map((v) => `(${v}/mo)`),
     stocksReturnRate: `(${fmt.formatHundredthsPercent(ctx.stocksReturnRate)})`,
   };
 }
