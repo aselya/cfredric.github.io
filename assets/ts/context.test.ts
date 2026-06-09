@@ -3,6 +3,7 @@ import Decimal from 'decimal.js';
 
 // import {NamedConstant, NamedOutput, Num} from './num';
 import {Context} from './context';
+import {Schedules} from './schedules';
 import {ContextInput} from './types';
 
 function defaultInput(): ContextInput {
@@ -531,4 +532,37 @@ test('pastPrepayment', () => {
   // Fallback to prepayment if paymentsAlreadyMade is 0 and only total is provided
   input.paymentsAlreadyMade = 0;
   expect(new Context(input).pastPrepayment.toNumber()).toEqual(100);
+});
+
+test('schedules length reduction with prepayments', () => {
+  const input = defaultInput();
+  input.price = new Decimal(100000);
+  input.interestRate = new Decimal(5);
+  input.mortgageTerm = 30; // 360 months
+
+  // No prepayment
+  const ctxNoPrepay = new Context(input);
+  const schedNoPrepay = new Schedules(ctxNoPrepay);
+  expect(schedNoPrepay.pointwise().length).toBe(360);
+
+  // Future prepayment
+  input.prepayment = new Decimal(1000);
+  const ctxFuturePrepay = new Context(input);
+  const schedFuturePrepay = new Schedules(ctxFuturePrepay);
+  expect(schedFuturePrepay.pointwise().length).toBeLessThan(360);
+
+  // Past prepayment only
+  input.prepayment = new Decimal(0);
+  input.pastPrepaymentMonthly = new Decimal(1000);
+  input.paymentsAlreadyMade = 12;
+  const ctxPastPrepay = new Context(input);
+  const schedPastPrepay = new Schedules(ctxPastPrepay);
+  expect(schedPastPrepay.pointwise().length).toBeLessThanOrEqual(360);
+  // It should still be 360 or less, but the point is that it accounts for it.
+  // Actually, if we only have past prepayments, it might still take the full 360 months if the remaining balance is high.
+  // Let's use a very large past prepayment to ensure it finishes early.
+  input.pastPrepaymentMonthly = new Decimal(10000);
+  const ctxLargePastPrepay = new Context(input);
+  const schedLargePastPrepay = new Schedules(ctxLargePastPrepay);
+  expect(schedLargePastPrepay.pointwise().length).toBeLessThan(360);
 });

@@ -8,11 +8,16 @@ import {PaymentRecordWithMonth} from './types';
  */
 function pointwiseFromContext(ctx: Context): readonly PaymentRecordWithMonth[] {
   let equityOwned = ctx.downPayment;
-  const pointwise: PaymentRecordWithMonth[] = new Array(ctx.n.toNumber());
+  const pointwise: PaymentRecordWithMonth[] = [];
 
   const lastMonth = ctx.n.toNumber();
   for (let month = 0; month < lastMonth; ++month) {
     const principalRemaining = ctx.price.sub(equityOwned);
+
+    if (principalRemaining.eq(0) && month >= ctx.paymentsAlreadyMade) {
+      break;
+    }
+
     const interestPayment = ctx.interestRate.div(12).mul(principalRemaining);
     const pmiPayment = equityOwned.lt(ctx.pmiEquityPct.mul(ctx.price)) ?
         ctx.pmi :
@@ -29,7 +34,7 @@ function pointwiseFromContext(ctx: Context): readonly PaymentRecordWithMonth[] {
         ctx.propertyTaxAnnual.div(4) :
         Num.literal(0);
     equityOwned = equityOwned.add(principalPaidThisMonth);
-    pointwise[month] = {
+    pointwise.push({
       month: month + 1,
       data: {
         interest: interestPayment,
@@ -39,7 +44,7 @@ function pointwiseFromContext(ctx: Context): readonly PaymentRecordWithMonth[] {
         property_tax: propertyTaxThisMonth,
         homeowners_insurance: ctx.homeownersInsurance,
       },
-    };
+    });
   }
 
   return pointwise;
