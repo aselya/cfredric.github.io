@@ -51,6 +51,7 @@ export class Context {
   readonly paymentsAlreadyMade: number;
   readonly closingDate?: Date;
   readonly prepayment: Num;
+  readonly pastPrepayment: Num;
   readonly stocksReturnRate: Num;
   readonly purchasePayment: Num;
 
@@ -185,9 +186,27 @@ export class Context {
               ));
       this.prepayment =
           constant('prepayment', input.prepayment.clamp(0, this.price.value()));
+
+      if (input.pastPrepaymentMonthly && !input.pastPrepaymentMonthly.eq(0)) {
+        this.pastPrepayment = constant(
+            'pastPrepaymentMonthly',
+            input.pastPrepaymentMonthly.clamp(0, this.price.value()));
+      } else if (
+          input.pastPrepaymentTotal && !input.pastPrepaymentTotal.eq(0) &&
+          this.paymentsAlreadyMade > 0) {
+        this.pastPrepayment = output(
+            'pastPrepayment',
+            constant(
+                'pastPrepaymentTotal',
+                input.pastPrepaymentTotal.clamp(0, this.price.value()))
+                .div(this.paymentsAlreadyMade));
+      } else {
+        this.pastPrepayment = this.prepayment;
+      }
     } else {
       this.m = output('principalAndInterest', Num.literal(0));
       this.prepayment = constant('prepayment', Num.literal(0));
+      this.pastPrepayment = constant('pastPrepayment', Num.literal(0));
     }
     this.monthlyLoanPayment = this.m.add(this.prepayment);
     this.monthlyNonLoanPayment = Num.sum(

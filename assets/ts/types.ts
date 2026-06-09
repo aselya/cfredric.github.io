@@ -65,6 +65,8 @@ export interface ContextInput {
   alreadyClosed: boolean;
   paymentsAlreadyMade: number;
   closingDate?: Date;
+  pastPrepaymentMonthly?: Decimal;
+  pastPrepaymentTotal?: Decimal;
   prepayment: Decimal;
   stocksReturnRate?: Decimal;
   now: Date;
@@ -97,6 +99,8 @@ export interface Inputs {
   alreadyClosed: HTMLInputElement;
   paymentsAlreadyMade: HTMLInputElement;
   closingDate: HTMLInputElement;
+  pastPrepaymentMonthly: HTMLInputElement;
+  pastPrepaymentTotal: HTMLInputElement;
   nowDate: HTMLInputElement;
   prepayment: HTMLInputElement;
   stocksReturnRate: HTMLInputElement;
@@ -114,6 +118,7 @@ export const hintTypes = [
   'mortgageTerm',
   'downPayment',
   'paymentsAlreadyMade',
+  'pastPrepayment',
   'stocksReturnRate',
 ] as const;
 
@@ -214,6 +219,9 @@ export const constantNames = [
   'monthlyDebt',
   'mortgageTerm',
   'PMI',
+  'pastPrepayment',
+  'pastPrepaymentMonthly',
+  'pastPrepaymentTotal',
   'pmiEquityCutoff',
   'pointsPurchased',
   'pointsValue',
